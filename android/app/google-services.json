@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "886243656613",
+    "project_id": "digishala-aab53",
+    "storage_bucket": "digishala-aab53.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886243656613:android:cba8ef764b3897c3bf5e4c",
+        "android_client_info": {
+          "package_name": "com.example.digishala"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "886243656613-4nnqvk53jvmueupkc3tinc3rfom5fl0i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCch_WZ8iYoZy3IO3ZBnk89csTdFae4tRk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "886243656613-4nnqvk53jvmueupkc3tinc3rfom5fl0i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

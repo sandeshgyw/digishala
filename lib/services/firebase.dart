@@ -76,7 +76,7 @@ class _Firebase {
         ..isVerified = false
         ..token = await _messaging.getToken()
         ..uid = firebaseUser.uid;
-      // await userRef.set(userModel.toMap());
+      await userRef.set(userModel.toMap());
       return appUser = userModel;
     }
   }

@@ -158,18 +158,18 @@ class _SetupProfileState extends State<SetupProfile> {
                       },
                       textCapitalization: TextCapitalization.characters,
                       decoration: new InputDecoration(
-                        alignLabelWithHint: true,
-                        border: new OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(
-                            const Radius.circular(30),
+                          alignLabelWithHint: true,
+                          border: new OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(30),
+                            ),
                           ),
-                        ),
-                        filled: true,
-                        prefixIcon: Icon(
-                          Icons.school_outlined,
-                        ),
-                        labelText: "Faculty",
-                      ),
+                          filled: true,
+                          prefixIcon: Icon(
+                            Icons.school_outlined,
+                          ),
+                          labelText: "Faculty",
+                          hintText: "eg. BEX"),
                       onChanged: (value) {
                         user.faculty = value;
                       },
@@ -184,25 +184,27 @@ class _SetupProfileState extends State<SetupProfile> {
                       validator: (value) {
                         if (value == null || value == "")
                           return "Mandatory Field";
+                        if (value.length != 4)
+                          return "Enter a valid year (eg.2074)";
                         return null;
                       },
                       keyboardType: TextInputType.phone,
                       decoration: new InputDecoration(
-                        // fillColor: Theme.of(context).primaryColor,
-                        hoverColor: Theme.of(context).primaryColor,
-                        focusColor: Theme.of(context).primaryColor,
-                        // alignLabelWithHint: true,
-                        border: new OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(
-                            const Radius.circular(30),
+                          // fillColor: Theme.of(context).primaryColor,
+                          hoverColor: Theme.of(context).primaryColor,
+                          focusColor: Theme.of(context).primaryColor,
+                          // alignLabelWithHint: true,
+                          border: new OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(30),
+                            ),
                           ),
-                        ),
-                        filled: true,
-                        prefixIcon: Icon(
-                          Icons.date_range,
-                        ),
-                        labelText: "Batch",
-                      ),
+                          filled: true,
+                          prefixIcon: Icon(
+                            Icons.date_range,
+                          ),
+                          labelText: "Batch",
+                          hintText: "eg. 2074"),
                       onChanged: (value) {
                         user.year = int.parse(value);
                       },
@@ -217,22 +219,24 @@ class _SetupProfileState extends State<SetupProfile> {
                       validator: (value) {
                         if (value == null || value == "")
                           return "Mandatory Field";
+                        if (value.length > 2)
+                          return "Enter a valid roll number. (eg. 24)";
                         return null;
                       },
                       keyboardType: TextInputType.phone,
                       decoration: new InputDecoration(
-                        alignLabelWithHint: true,
-                        border: new OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(
-                            const Radius.circular(30),
+                          alignLabelWithHint: true,
+                          border: new OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(30),
+                            ),
                           ),
-                        ),
-                        filled: true,
-                        prefixIcon: Icon(
-                          Icons.format_list_numbered,
-                        ),
-                        labelText: "Roll Number",
-                      ),
+                          filled: true,
+                          prefixIcon: Icon(
+                            Icons.format_list_numbered,
+                          ),
+                          labelText: "Roll Number",
+                          hintText: "1-48"),
                       onChanged: (value) {
                         user.roll = int.parse(value);
                       },

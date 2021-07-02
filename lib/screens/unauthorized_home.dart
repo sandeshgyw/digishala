@@ -13,6 +13,19 @@ class UnAuthorizedHome extends StatefulWidget {
 }
 
 class _UnAuthorizedHomeState extends State<UnAuthorizedHome> {
+  bool isAdmin = false;
+  Map claims = {};
+  @override
+  void initState() {
+    super.initState();
+    firebase.customClaims.then((value) {
+      setState(() {
+        this.claims = value;
+        isAdmin = claims["admin"];
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

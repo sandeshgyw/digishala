@@ -81,6 +81,10 @@ class _Firebase {
     }
   }
 
+  Future<Map> get customClaims async {
+    return (await firebaseUser.getIdTokenResult(true)).claims ?? {};
+  }
+
   Future<void> saveProfile(AppUser user, File image) async {
     user.profileCreated = true;
     Reference ref = _storage

@@ -147,68 +147,81 @@ class _SetupProfileState extends State<SetupProfile> {
               ),
               if (user.level == UserLevel.STUDENT) ...[
                 Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextFormField(
-                      style: fieldText,
-                      validator: (value) {
-                        if (value == null || value == "")
-                          return "Mandatory Field";
-                        return null;
-                      },
-                      textCapitalization: TextCapitalization.characters,
-                      decoration: new InputDecoration(
-                          alignLabelWithHint: true,
-                          border: new OutlineInputBorder(
-                            borderRadius: const BorderRadius.all(
-                              const Radius.circular(30),
-                            ),
-                          ),
-                          filled: true,
-                          prefixIcon: Icon(
-                            Icons.school_outlined,
-                          ),
-                          labelText: "Faculty",
-                          hintText: "eg. BEX"),
-                      onChanged: (value) {
-                        user.faculty = value;
-                      },
+                  padding: EdgeInsets.all(16),
+                  child: DropdownButtonFormField<String>(
+                    style: fieldText,
+
+                    validator: (value) {
+                      if (value == null) return "Mandatory Field";
+                      return null;
+                    },
+                    decoration: new InputDecoration(
+                      alignLabelWithHint: true,
+                      border: new OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          const Radius.circular(30),
+                        ),
+                      ),
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.school,
+                      ),
+                      labelText: "Faculty",
                     ),
+                    isExpanded: true,
+                    // hint: Text("Select item"),
+                    // value: user.level,
+                    onChanged: (String value) {
+                      setState(() {
+                        user.faculty = value;
+                      });
+                    },
+                    items: ["BEX"].map((String fac) {
+                      return DropdownMenuItem<String>(
+                          value: "BEX",
+                          child: Text(
+                            fac,
+                          ));
+                    }).toList(),
                   ),
                 ),
                 Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextFormField(
-                      style: fieldText,
-                      validator: (value) {
-                        if (value == null || value == "")
-                          return "Mandatory Field";
-                        if (value.length != 4)
-                          return "Enter a valid year (eg.2074)";
-                        return null;
-                      },
-                      keyboardType: TextInputType.phone,
-                      decoration: new InputDecoration(
-                          // fillColor: Theme.of(context).primaryColor,
-                          hoverColor: Theme.of(context).primaryColor,
-                          focusColor: Theme.of(context).primaryColor,
-                          // alignLabelWithHint: true,
-                          border: new OutlineInputBorder(
-                            borderRadius: const BorderRadius.all(
-                              const Radius.circular(30),
-                            ),
-                          ),
-                          filled: true,
-                          prefixIcon: Icon(
-                            Icons.date_range,
-                          ),
-                          labelText: "Batch",
-                          hintText: "eg. 2074"),
-                      onChanged: (value) {
-                        user.year = int.parse(value);
-                      },
+                  padding: EdgeInsets.all(16),
+                  child: DropdownButtonFormField<String>(
+                    style: fieldText,
+
+                    validator: (value) {
+                      if (value == null) return "Mandatory Field";
+                      return null;
+                    },
+                    decoration: new InputDecoration(
+                      alignLabelWithHint: true,
+                      border: new OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          const Radius.circular(30),
+                        ),
+                      ),
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.calendar_today,
+                      ),
+                      labelText: "Batch",
                     ),
+                    isExpanded: true,
+                    // hint: Text("Select item"),
+                    // value: user.level,
+                    onChanged: (String value) {
+                      setState(() {
+                        user.year = int.parse(value);
+                      });
+                    },
+                    items: ["2074"].map((String year) {
+                      return DropdownMenuItem<String>(
+                          value: year,
+                          child: Text(
+                            year,
+                          ));
+                    }).toList(),
                   ),
                 ),
                 Container(

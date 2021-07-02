@@ -9,7 +9,7 @@ class AppUser {
       "uid": uid,
       "name": name,
       "phoneNumber": phoneNumber,
-      "faculty": faculty,
+      "faculty": faculty.toUpperCase(),
       "year": year,
       "roll": roll,
       "token": token,

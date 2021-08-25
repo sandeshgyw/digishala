@@ -19,13 +19,16 @@ void navigateUser(BuildContext context) {
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (BuildContext context) => SetupProfile()));
   } else if (userModel.profileCreated == true &&
-      userModel.isVerified == false) {
+      (userModel.isVerified == false || userModel.isVerified == null)) {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (BuildContext context) => UnAuthorizedHome()));
   } else if (userModel.isVerified == true) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => AuthorizedHome()));
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) =>
+                AuthorizedHome())); //make it authorized home only for test
   }
 }

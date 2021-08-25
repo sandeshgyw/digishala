@@ -80,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }).catchError((e) {
         ScaffoldMessenger.of(context)
             .showSnackBar(showCustomSnackBar(Text("Invalid Code")));
+        print(e);
         setState(() {
           loading = false;
         });

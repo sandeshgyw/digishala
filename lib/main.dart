@@ -48,9 +48,6 @@ class MyApp extends StatelessWidget {
           buttonColor: Colors.amber,
           textTheme: ButtonTextTheme.primary,
         ),
-        // iconTheme: IconThemeData(
-        //   color: Colors.green,
-        // ),
       ),
       home: SplashScreen(),
     );
@@ -77,21 +74,6 @@ class _MyHomePageState extends State<MyHomePage> {
         .collection("cpont")
         .doc("test")
         .set({"cpunt": _counter});
-  }
-
-  _getCount() async {
-    var data =
-        await FirebaseFirestore.instance.collection("cpont").doc("test").get();
-    setState(() {
-      _counter = data["cpunt"];
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // TODO: implement initState
-    _getCount();
   }
 
   @override

@@ -1,7 +1,11 @@
 import 'package:digishala/constants/text_styles.dart';
+import 'package:digishala/models/app_user.dart';
+import 'package:digishala/screens/adminScreens/faculty_screen.dart';
+import 'package:digishala/screens/adminScreens/settings.dart';
 import 'package:digishala/screens/user_detail.dart';
 import 'package:digishala/services/firebase.dart';
 import 'package:digishala/services/navigation.dart';
+import 'package:digishala/widgets/custom_tile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -15,13 +19,15 @@ class UnAuthorizedHome extends StatefulWidget {
 class _UnAuthorizedHomeState extends State<UnAuthorizedHome> {
   bool isAdmin = false;
   Map claims = {};
+  bool getAdminStatus = false;
   @override
   void initState() {
     super.initState();
     firebase.customClaims.then((value) {
       setState(() {
         this.claims = value;
-        isAdmin = claims["admin"];
+        isAdmin = claims["admin"] ?? false;
+        getAdminStatus = true;
       });
     });
   }
@@ -80,6 +86,23 @@ class _UnAuthorizedHomeState extends State<UnAuthorizedHome> {
                 ),
               ),
             ),
+            if (isAdmin)
+              ListTile(
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Settings(),
+                    )),
+                leading: Icon(
+                  Icons.settings,
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  "Admin Panel",
+                  style: normalText,
+                ),
+              ),
+            Divider(),
             ListTile(
               leading: Icon(
                 Icons.person,
@@ -119,7 +142,35 @@ class _UnAuthorizedHomeState extends State<UnAuthorizedHome> {
               context, MaterialPageRoute(builder: (context) => UserDetail()));
         },
       ),
-      body: Padding(
+      body: getAdminStatus
+          ? body
+          : Center(
+              child: CircularProgressIndicator(),
+            ),
+    );
+  }
+
+  Widget get body {
+    if (isAdmin ?? false)
+      return ListView.builder(
+          padding: EdgeInsets.all(8),
+          itemCount: 5,
+          itemBuilder: (BuildContext context, int index) {
+            return CustomTile(
+              title: (index + 1).toString(),
+              subtitle: "year",
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FacultyScreen(
+                            year: index + 1,
+                            isAdmin: isAdmin,
+                            isViewAttendance: false,
+                          ))),
+            );
+          });
+    else
+      return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
           child: ListTile(
@@ -137,7 +188,6 @@ class _UnAuthorizedHomeState extends State<UnAuthorizedHome> {
             isThreeLine: true,
           ),
         ),
-      ),
-    );
+      );
   }
 }

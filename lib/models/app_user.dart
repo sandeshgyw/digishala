@@ -1,22 +1,29 @@
+import 'package:digishala/models/attendance.dart';
+
 class AppUser {
   String name, phoneNumber, faculty, token, uid, imageUrl;
-  int year, roll;
+  int year, roll, currentYear;
   bool profileCreated, isVerified;
   UserLevel level;
+  bool isPresent = false;
+  List<Attendance> attendanceRecords = [];
+  int activeLibraryCards;
 
   toMap() {
     return {
       "uid": uid,
       "name": name,
       "phoneNumber": phoneNumber,
-      "faculty": faculty.toUpperCase(),
+      "faculty": faculty?.toUpperCase(),
       "year": year,
       "roll": roll,
       "token": token,
       "profileCreated": profileCreated ?? false,
       "isVerified": isVerified ?? false,
       "level": level == UserLevel.STUDENT ? "STUDENT" : "TEACHER",
-      "imageUrl": imageUrl
+      "imageUrl": imageUrl,
+      "currentYear": currentYear,
+      "activeLibraryCards": activeLibraryCards
     };
   }
 
@@ -31,13 +38,15 @@ class AppUser {
       ..token = json["token"]
       ..profileCreated = json["profileCreated"]
       ..isVerified = json["isVerified"]
-      ..level =
-          json["level"] == "STUDENT" ? UserLevel.STUDENT : UserLevel.TEACHER
-      ..imageUrl = json["imageUrl"];
+      ..level = json["level"] == "STUDENT"
+          ? UserLevel.STUDENT
+          : json["level"] == "TEACHER"
+              ? UserLevel.TEACHER
+              : UserLevel.LIBRARIAN
+      ..imageUrl = json["imageUrl"]
+      ..currentYear = json["currentYear"]
+      ..activeLibraryCards = json["activeLibraryCards"];
   }
 }
 
-enum UserLevel {
-  TEACHER,
-  STUDENT,
-}
+enum UserLevel { TEACHER, STUDENT, LIBRARIAN }

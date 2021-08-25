@@ -5,7 +5,6 @@ import 'package:digishala/models/app_user.dart';
 import 'package:digishala/services/firebase.dart';
 import 'package:digishala/services/navigation.dart';
 import 'package:digishala/widgets/snackbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -21,8 +20,24 @@ class _SetupProfileState extends State<SetupProfile> {
   AppUser user = firebase.appUser;
   File _image;
   bool loading = false;
+  List<String> faculties = [];
+  String defaultFaculty;
   Future<File> getImageFromSource(source) async {
     return File((await ImagePicker().getImage(source: source)).path);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initAsync();
+  }
+
+  initAsync() async {
+    setState(() async {
+      faculties = await firebase.getFaculties();
+      defaultFaculty = faculties[0];
+    });
   }
 
   @override
@@ -176,9 +191,10 @@ class _SetupProfileState extends State<SetupProfile> {
                         user.faculty = value;
                       });
                     },
-                    items: ["BEX"].map((String fac) {
+                    items:
+                        faculties.map<DropdownMenuItem<String>>((String fac) {
                       return DropdownMenuItem<String>(
-                          value: "BEX",
+                          value: fac,
                           child: Text(
                             fac,
                           ));

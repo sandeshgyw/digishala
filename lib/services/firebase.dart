@@ -218,6 +218,7 @@ class _Firebase {
               .where("currentYear", isEqualTo: year)
               .where("faculty", isEqualTo: faculty)
               .where("isVerified", isEqualTo: true)
+              .where("level", isEqualTo: "STUDENT")
               .get())
           .docs
           .map<AppUser>((e) => AppUser.fromMap(e.data()))

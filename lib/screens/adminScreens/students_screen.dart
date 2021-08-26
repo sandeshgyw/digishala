@@ -15,13 +15,13 @@ class StudentsScreen extends StatefulWidget {
   final int year;
   final String faculty;
   final Subject subject;
-  final bool isViewAttendance = true;
+  final bool isViewAttendance;
   const StudentsScreen(
       {Key key,
       this.faculty,
       this.year,
       @required this.fromAdmin,
-      @required isViewAttendance,
+      this.isViewAttendance = true,
       this.subject})
       : super(key: key);
 

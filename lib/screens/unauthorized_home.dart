@@ -1,5 +1,4 @@
 import 'package:digishala/constants/text_styles.dart';
-import 'package:digishala/models/app_user.dart';
 import 'package:digishala/screens/adminScreens/faculty_screen.dart';
 import 'package:digishala/screens/adminScreens/settings.dart';
 import 'package:digishala/screens/user_detail.dart';

@@ -310,6 +310,9 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
     if (firebase.appUser.level == UserLevel.LIBRARIAN)
       return ListView(
         children: [
+          SizedBox(
+            height: 10,
+          ),
           CustomTile(
             title: "View library records",
             onTap: () => Navigator.push(

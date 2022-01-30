@@ -2,7 +2,6 @@ import 'package:digishala/models/app_user.dart';
 import 'package:digishala/models/subject.dart';
 import 'package:digishala/screens/adminScreens/students_screen.dart';
 import 'package:digishala/screens/studentscreens/my_attendance.dart';
-import 'package:digishala/screens/teacherScreens/attendance_records.dart';
 import 'package:digishala/services/firebase.dart';
 import 'package:digishala/widgets/custom_tile.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +27,6 @@ class _SubjectScreenState extends State<SubjectScreen> {
   List<Subject> subs = [];
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initAsync();
   }
@@ -43,8 +41,11 @@ class _SubjectScreenState extends State<SubjectScreen> {
     if (firebase.appUser.level == UserLevel.STUDENT) {
       var val = await firebase.getAllSubjects();
       setState(() {
-        subs = val.where((element) =>
-            element.faculty == widget.faculty && element.year == widget.year).toList();
+        subs = val
+            .where((element) =>
+                element.faculty == widget.faculty &&
+                element.year == widget.year)
+            .toList();
       });
       print(subs);
     }

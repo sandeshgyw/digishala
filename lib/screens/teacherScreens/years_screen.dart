@@ -51,6 +51,5 @@ class _YearsScreenState extends State<YearsScreen> {
             );
           }),
     );
-    ;
   }
 }

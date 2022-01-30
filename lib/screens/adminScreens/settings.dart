@@ -2,7 +2,6 @@ import 'package:digishala/screens/adminScreens/add_faculty.dart';
 import 'package:digishala/screens/adminScreens/add_final_year.dart';
 import 'package:digishala/screens/adminScreens/add_subject.dart';
 import 'package:digishala/screens/adminScreens/assign_sub_screen.dart';
-import 'package:digishala/screens/teacherScreens/subjects_screen.dart';
 import 'package:digishala/widgets/custom_tile.dart';
 import 'package:flutter/material.dart';
 

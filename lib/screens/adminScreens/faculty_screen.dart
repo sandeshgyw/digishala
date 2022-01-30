@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 class FacultyScreen extends StatefulWidget {
   final bool isAdmin;
   final int year;
-  bool isViewAttendance = true;
+  final bool isViewAttendance;
   FacultyScreen(
       {Key key,
       this.year,
       @required this.isAdmin,
-      @required this.isViewAttendance})
+      @required this.isViewAttendance = true})
       : super(key: key);
 
   @override
@@ -38,7 +38,7 @@ class _FacultyScreenState extends State<FacultyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Digishala"),
+        title: Text("Faculties"),
       ),
       body: faculties.length == 0
           ? CircularProgressIndicator()

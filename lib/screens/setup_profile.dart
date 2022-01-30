@@ -5,6 +5,7 @@ import 'package:digishala/models/app_user.dart';
 import 'package:digishala/services/firebase.dart';
 import 'package:digishala/services/navigation.dart';
 import 'package:digishala/widgets/snackbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 

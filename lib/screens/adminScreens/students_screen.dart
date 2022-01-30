@@ -4,9 +4,8 @@ import 'package:digishala/models/attendance.dart';
 import 'package:digishala/models/subject.dart';
 import 'package:digishala/screens/adminScreens/verify_screen.dart';
 import 'package:digishala/screens/teacherScreens/attendance_records.dart';
-import 'package:digishala/screens/user_detail.dart';
+import 'package:digishala/screens/teacherScreens/daily_attendance_screen.dart';
 import 'package:digishala/services/firebase.dart';
-import 'package:digishala/widgets/attendance_tile.dart';
 import 'package:digishala/widgets/custom_tile.dart';
 import 'package:flutter/material.dart';
 
@@ -54,13 +53,19 @@ class _StudentsScreenState extends State<StudentsScreen> {
       appBar: AppBar(
         title: Text("Students List"),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            await firebase.saveAttendance(users, widget.subject,
-                DateTime.now().toString().split(" ").first);
-            Navigator.pop(context);
-          },
-          label: Text("Save Attendance")),
+      floatingActionButton: widget.isViewAttendance == false
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                await firebase.saveAttendance(users, widget.subject,
+                    DateTime.now().toString().split(" ").first);
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            DailyAttendanceRecord(users: users)));
+              },
+              label: Text("Save Attendance"))
+          : null,
       body: users.length == 0
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
@@ -237,20 +242,23 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                 //   borderRadius: BorderRadius.circular(10),
                                 // ),
                                 iconColor: Colors.white,
-                                tileColor: users[index].isPresent
-                                    ? Colors.green
-                                    : Colors.redAccent,
+                                tileColor: Color(0xff868784),
                                 child: ListTile(
                                     title: Text(
-                                  text.data,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    // color: users[index].isPresent
-                                    //     ? Colors.yellow
-                                    //     : Colors.redAccent,
-                                  ),
-                                )
+                                      text.data,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        // color: users[index].isPresent
+                                        //     ? Colors.yellow
+                                        //     : Colors.redAccent,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      "Present",
+                                      style: tileText,
+                                    ),
+                                    trailing: Icon(Icons.arrow_forward)
                                     // subtitle: Text(
                                     //   users[index].roll.toString(),
                                     //   style: tileText,
@@ -282,6 +290,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
     int presentDays =
         dates.where((element) => element.isPresent == true).length;
 
-    return ((presentDays / total) * 100).toString() + " %";
+    return ((presentDays / total) * 100).toInt().toString() + " %";
   }
 }

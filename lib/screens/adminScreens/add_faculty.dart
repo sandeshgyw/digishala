@@ -1,5 +1,4 @@
 import 'package:digishala/constants/text_styles.dart';
-import 'package:digishala/models/subject.dart';
 import 'package:digishala/services/firebase.dart';
 import 'package:digishala/widgets/custom_button.dart';
 import 'package:flutter/material.dart';

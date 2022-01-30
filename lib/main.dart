@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
           subtitle2: tileText,
         ),
         appBarTheme: AppBarTheme(
+          color: Color(0xff6B705C),
           textTheme: TextTheme(
 
               // headline1: boldText,

@@ -93,6 +93,6 @@ class _MyAttendanceDetailState extends State<MyAttendanceDetail> {
     int presentDays =
         dates.where((element) => element.isPresent == true).length;
 
-    return ((presentDays / total) * 100).toString();
+    return ((presentDays / total) * 100).toInt().toString() + "%";
   }
 }

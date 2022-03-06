@@ -1,10 +1,14 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:digishala/models/admin_request.dart';
 import 'package:digishala/models/app_user.dart';
 import 'package:digishala/models/attendance.dart';
+import 'package:digishala/models/class_beacon.dart';
 import 'package:digishala/models/library_record.dart';
 import 'package:digishala/models/subject.dart';
+import 'package:digishala/models/teacher_attendance.dart';
+import 'package:digishala/screens/authorized_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -86,7 +90,7 @@ class _Firebase {
   }
 
   Future<Map> get customClaims async {
-    return (await firebaseUser.getIdTokenResult(true)).claims ?? {};
+    return (await firebaseUser.getIdTokenResult(true))?.claims ?? {};
   }
 
   Future<void> saveProfile(AppUser user, File image) async {
@@ -103,6 +107,22 @@ class _Firebase {
     user.uid = firebaseUser.uid;
     user.activeLibraryCards = 7;
     await _firestore.collection("users").doc(user.uid).set(user.toMap());
+  }
+
+  Future<void> updateProfile(AppUser user) async {
+    await _firestore.collection("users").doc(user.uid).update(user.toMap());
+  }
+
+  Future<void> updateAttendance(
+      AppUser user, Attendance attendance, Subject sub) async {
+    await _firestore
+        .collection("users")
+        .doc(user.uid)
+        .collection("subjects")
+        .doc(sub.subId)
+        .collection("dates")
+        .doc(attendance.date)
+        .update({"isPresent": attendance.isPresent});
   }
 
   uploadToken(AppUser user) async {
@@ -150,6 +170,38 @@ class _Firebase {
         .collection("faculties")
         .doc();
     await ref.set({"faculty": faculty});
+    return true;
+  }
+
+  Future<bool> addBeacon(ClassBeacon classBeacon) async {
+    var ref = _firestore.collection("classBeacons").doc();
+    classBeacon.id = ref.id;
+    await ref.set(classBeacon.toMap());
+    return true;
+  }
+
+  Future<List<ClassBeacon>> getUUids() async {
+    List<ClassBeacon> classBeacons = [];
+    CollectionReference ref = _firestore.collection("classBeacons");
+    QuerySnapshot snapshot = await ref.get();
+    classBeacons = snapshot.docs.map((e) {
+      Map data;
+      data = e.data();
+
+      return ClassBeacon.fromMap(e.data());
+    }).toList();
+
+    return classBeacons;
+  }
+
+  Future<bool> saveTeacherAttendance(TeacherAttendance attendance) async {
+    await _firestore
+        .collection("users")
+        .doc(firebaseUser.uid)
+        .collection("dates")
+        .doc(attendance.date)
+        .set(attendance.toMap());
+
     return true;
   }
 
@@ -292,6 +344,40 @@ class _Firebase {
     return true;
   }
 
+  Future<bool> adminRequest(AdminRequest adminRequest) async {
+    var ref = _firestore.collection("adminRequests").doc();
+    adminRequest.docId = ref.id;
+    await ref.set(adminRequest.toMap());
+
+    return true;
+  }
+
+  Future<List<AdminRequest>> getMyAdminRequests(AppUser user) async {
+    return (await _firestore
+            .collection("adminRequests")
+            .where("userId", isEqualTo: user.uid)
+            .get())
+        .docs
+        .map<AdminRequest>((e) => AdminRequest.fromMap(e.data()))
+        .toList();
+  }
+
+  Future<List<AdminRequest>> getAllAdminRequest() async {
+    return (await _firestore.collection("adminRequests").get())
+        .docs
+        .map<AdminRequest>((e) => AdminRequest.fromMap(e.data()))
+        .toList();
+  }
+
+  Future<bool> adminReqComplete(AdminRequest record) async {
+    await _firestore
+        .collection("adminRequests")
+        .doc(record.docId)
+        .update({"isReady": true});
+
+    return true;
+  }
+
   Future<List<LibraryRecord>> getBooksRecord() async {
     return (await _firestore
             .collection("libraryRecords")
@@ -348,7 +434,7 @@ class _Firebase {
     await _firestore
         .collection("libraryRecords")
         .doc(record.recordId)
-        .update({"isVerified": false});
+        .update({"isVerified": false, "date": DateTime.now().toString()});
     return true;
   }
 
@@ -362,6 +448,61 @@ class _Firebase {
         .doc(record.studentUid)
         .update({"activeLibraryCards": FieldValue.increment(1)});
     return true;
+  }
+
+  setClassRoom(RoomAttendance roomAttendance) {
+    ClassBeacon beacon = ClassBeacon(
+        className: roomAttendance.roomName, id: roomAttendance.roomKey);
+    _firestore
+        .collection("users")
+        .doc(firebaseUser.uid)
+        .collection("classRoom")
+        .doc(roomAttendance.roomKey)
+        .set(beacon.toMap(), SetOptions(merge: true));
+  }
+
+  setTeacherAttendance(RoomAttendance roomAttendance) {
+    _firestore
+        .collection("users")
+        .doc(firebaseUser.uid)
+        .collection("classRoom")
+        .doc(roomAttendance.roomKey)
+        .collection("attendances")
+        .doc()
+        .set(roomAttendance.toMap());
+  }
+
+  Future<AppUser> getUser(String id) async {
+    return _firestore.collection("users").doc(id).get().then((e) {
+      return AppUser.fromMap(e.data());
+    });
+  }
+
+  Future<List<ClassBeacon>> getClassRoom({AppUser classUser}) async {
+    String uid = classUser?.uid ?? firebaseUser.uid;
+    return (await _firestore
+            .collection("users")
+            .doc(uid)
+            .collection("classRoom")
+            .get())
+        .docs
+        .map<ClassBeacon>((e) => ClassBeacon.fromMap(e.data()))
+        .toList();
+  }
+
+  Future<List<RoomAttendance>> getClassRoomDates(ClassBeacon classRoom,
+      {AppUser user}) async {
+    String uid = user?.uid ?? firebaseUser.uid;
+    return (await _firestore
+            .collection("users")
+            .doc(uid)
+            .collection("classRoom")
+            .doc(classRoom.id)
+            .collection("attendances")
+            .get())
+        .docs
+        .map<RoomAttendance>((e) => RoomAttendance.fromMap(e.data()))
+        .toList();
   }
 }
 

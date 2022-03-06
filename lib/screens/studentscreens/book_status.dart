@@ -32,7 +32,7 @@ class _BookStatusState extends State<BookStatus> {
                 Column(
                   children: [
                     firebase.appUser.imageUrl == null
-                        ? CircularProgressIndicator()
+                        ? Center(child: CircularProgressIndicator())
                         : CircleAvatar(
                             radius: 82,
                             backgroundColor: Theme.of(context).primaryColor,
@@ -90,7 +90,7 @@ class _BookStatusState extends State<BookStatus> {
                     style: boldText,
                   ),
                   subtitle: Text(
-                    widget.bookRecord.bookKey,
+                    widget?.bookRecord?.bookKey ?? "",
                     style: normalText,
                   ),
                   leading: Icon(
@@ -156,7 +156,8 @@ class _BookStatusState extends State<BookStatus> {
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
-                if (widget.bookRecord.dueDate.isBefore(DateTime.now()))
+                if (widget.bookRecord.dueDate.isBefore(DateTime.now()) &&
+                    !widget.bookRecord.isReturned)
                   ListTile(
                     title: Text(
                       "Fine",
@@ -164,9 +165,10 @@ class _BookStatusState extends State<BookStatus> {
                     ),
                     subtitle: Text(
                       "Rs. " +
-                          widget.bookRecord.dueDate
-                              .difference(DateTime.now())
-                              .inDays
+                          (widget.bookRecord.dueDate
+                                      .difference(DateTime.now())
+                                      .inDays *
+                                  -1)
                               .toString(),
                       style: normalText,
                     ),

@@ -57,17 +57,18 @@ class _MyBookRecordsState extends State<MyBookRecords> {
               trailing: libraryRecords[index].isReturned
                   ? Icon(Icons.verified)
                   : null,
-              subtitle: libraryRecords[index].dueDate.isBefore(DateTime.now())
-                  ? "Due date exceeded by " +
-                      libraryRecords[index]
-                          .dueDate
-                          .difference(DateTime.now())
-                          .inDays
-                          .toString() +
-                      " days"
-                  : "Due on " +
-                      DateFormat("yyyy-MM-dd")
-                          .format(libraryRecords[index].dueDate),
+              subtitle:
+                  (libraryRecords[index].dueDate.isBefore(DateTime.now()) &&
+                          !libraryRecords[index].isReturned)
+                      ? "Due date exceeded by " +
+                          DateTime.now()
+                              .difference(libraryRecords[index].dueDate)
+                              .inDays
+                              .toString() +
+                          " days"
+                      : "Due on " +
+                          DateFormat("yyyy-MM-dd")
+                              .format(libraryRecords[index].dueDate),
               onTap: () {
                 Navigator.push(
                   context,

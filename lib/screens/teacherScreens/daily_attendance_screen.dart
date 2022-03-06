@@ -39,7 +39,7 @@ class _DailyAttendanceRecordState extends State<DailyAttendanceRecord> {
                     Row(
                       children: [
                         widget.users[index].imageUrl == null
-                            ? CircularProgressIndicator()
+                            ? Center(child: CircularProgressIndicator())
                             : Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: CircleAvatar(

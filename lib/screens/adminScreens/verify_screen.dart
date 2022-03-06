@@ -30,7 +30,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
                 Column(
                   children: [
                     widget.user.imageUrl == null
-                        ? CircularProgressIndicator()
+                        ? Center(child: CircularProgressIndicator())
                         : CircleAvatar(
                             radius: 82,
                             backgroundColor: Theme.of(context).primaryColor,

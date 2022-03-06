@@ -1,16 +1,66 @@
+import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:digishala/constants/text_styles.dart';
+import 'package:digishala/mixin/room_scanner.dart';
+import 'package:digishala/models/admin_request.dart';
 import 'package:digishala/models/app_user.dart';
+import 'package:digishala/models/class_beacon.dart';
+import 'package:digishala/models/room.dart';
+import 'package:digishala/models/teacher_attendance.dart';
 import 'package:digishala/screens/adminScreens/faculty_screen.dart';
-import 'package:digishala/screens/adminScreens/settings.dart';
+import 'package:digishala/screens/adminScreens/settings.dart' as settings;
+import 'package:digishala/screens/studentscreens/admin_requests_screen.dart';
+import 'package:digishala/screens/studentscreens/admin_task_request.dart';
 import 'package:digishala/screens/studentscreens/library_screen.dart';
+import 'package:digishala/screens/studentscreens/request_a_leave.dart';
+import 'package:digishala/screens/teacherScreens/teacher_attendance_screen.dart';
 import 'package:digishala/screens/teacherScreens/years_screen.dart';
 import 'package:digishala/screens/user_detail.dart';
 import 'package:digishala/services/firebase.dart';
 import 'package:digishala/services/navigation.dart';
+import 'package:digishala/services/scanner.dart';
 import 'package:digishala/widgets/custom_tile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:snowm_scanner/snowm_scanner.dart';
+
+class RoomAttendance {
+  String roomKey, roomName, teacherUid, date;
+  DateTime entryTime, exitTime, firstScannedTime, lastScannedTime;
+  RoomAttendance(Room room) {
+    roomKey = room.key;
+    roomName = room.name;
+    teacherUid = firebase.appUser?.uid;
+  }
+
+  toMap() {
+    return {
+      "roomKey": roomKey,
+      "roomName": roomName,
+      "teacherUid": firebase.firebaseUser.uid,
+      "entryTime": entryTime,
+      "exitTime": exitTime,
+      "firstScannedTime": firstScannedTime,
+      "lastScannedTime": lastScannedTime,
+      "date": date
+    };
+  }
+
+  static RoomAttendance fromMap(Map<String, dynamic> json) {
+    return RoomAttendance(Room())
+      ..roomKey = json['roomKey']
+      ..roomName = json['roomName']
+      ..teacherUid = json['teacherUid']
+      ..entryTime = (json['entryTime'] as Timestamp).toDate()
+      ..exitTime = (json['exitTime'] as Timestamp).toDate()
+      ..firstScannedTime = (json['firstScannedTime'] as Timestamp).toDate()
+      ..lastScannedTime = (json['lastScannedTime'] as Timestamp).toDate()
+      ..date = json['date'];
+  }
+}
 
 class AuthorizedHome extends StatefulWidget {
   const AuthorizedHome({Key key}) : super(key: key);
@@ -19,11 +69,17 @@ class AuthorizedHome extends StatefulWidget {
   _AuthorizedHomeState createState() => _AuthorizedHomeState();
 }
 
-class _AuthorizedHomeState extends State<AuthorizedHome> {
+class _AuthorizedHomeState extends State<AuthorizedHome> with RoomScanner {
   List<String> carousel = [];
   bool isAdmin = false;
   Map claims = {};
   bool getAdminStatus = false;
+  List<String> uuids = [];
+  List<ClassBeacon> classBeacons = [];
+  List<Room> classRooms = [];
+  TeacherAttendance attendance = TeacherAttendance();
+  bool trackingStarted = false;
+  // Per class
 
   carouselItems() {
     if (isAdmin)
@@ -34,7 +90,7 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
           "Monitor teacher attendance"
         ];
       });
-    if (firebase.appUser.level == UserLevel.STUDENT)
+    if (firebase.appUser?.level == UserLevel.STUDENT)
       setState(() {
         carousel = [
           "Get your attendance records",
@@ -42,14 +98,14 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
           "Request administration tasks",
         ];
       });
-    if (firebase.appUser.level == UserLevel.TEACHER)
+    if (firebase.appUser?.level == UserLevel.TEACHER)
       setState(() {
         carousel = [
           "Take students attendance",
           "Get all your attendance records",
         ];
       });
-    if (firebase.appUser.level == UserLevel.LIBRARIAN)
+    if (firebase.appUser?.level == UserLevel.LIBRARIAN)
       setState(() {
         carousel = [
           "Get all library records",
@@ -57,6 +113,24 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
           "Approve and Reject Books Records"
         ];
       });
+  }
+
+  Future<bool> getUUids() async {
+    classBeacons = await firebase.getUUids();
+    uuids = classBeacons.map((e) => e.uuid).toList();
+    setState(() {
+      classRooms = classBeacons.map((e) {
+        return Room()
+          ..key = e.id
+          ..name = e.className
+          ..uuids = [e.uuid];
+      }).toList();
+    });
+
+    if (firebase.appUser?.level == UserLevel.TEACHER) {
+      startRoomScanner(classRooms);
+    }
+    return true;
   }
 
   @override
@@ -69,7 +143,38 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
         getAdminStatus = true;
       });
     });
+    getUUids();
+
     carouselItems();
+  }
+
+  @override
+  void dispose() {
+    disposeScanner();
+    super.dispose();
+  }
+
+  @override
+  onEntered(RoomAttendance roomAttendance) {
+    if (!trackingStarted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              "Entered Class.Attendance tracking started{${roomAttendance.entryTime}}")));
+      trackingStarted = true;
+    }
+
+    // TODO: implement onEntered
+    return super.onEntered(roomAttendance);
+  }
+
+  @override
+  onExited(RoomAttendance roomAttendance) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            "Exited Class.Attendance tracking stopped{${roomAttendance.exitTime}}")));
+    trackingStarted = false;
+    // TODO: implement onExited
+    return super.onExited(roomAttendance);
   }
 
   @override
@@ -119,19 +224,25 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
                   style: tileBoldText,
                 ),
                 accountEmail: Text(
-                  (firebase.appUser?.year.toString() ?? "") +
-                      "|" +
-                      (firebase.appUser?.faculty?.toUpperCase() ?? ""),
+                  (firebase.appUser?.year?.toString() ?? "") +
+                              "|" +
+                              (firebase.appUser?.faculty?.toUpperCase() ??
+                                  "") ==
+                          "|"
+                      ? "WELCOME"
+                      : (firebase.appUser?.year?.toString() ?? "") +
+                          "|" +
+                          (firebase.appUser?.faculty?.toUpperCase() ?? ""),
                   style: tileText,
                 ),
               ),
             ),
-            if (isAdmin)
+            if (isAdmin) ...[
               ListTile(
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Settings(),
+                      builder: (context) => settings.Settings(),
                     )),
                 leading: Icon(
                   Icons.settings,
@@ -142,7 +253,23 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
                   style: normalText,
                 ),
               ),
-            if (firebase.appUser.level == UserLevel.STUDENT) ...[
+              ListTile(
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => settings.Settings(),
+                    )),
+                leading: Icon(
+                  Icons.settings,
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  "View Teachers Attendance",
+                  style: normalText,
+                ),
+              ),
+            ],
+            if (firebase.appUser?.level == UserLevel.STUDENT) ...[
               ListTile(
                 leading: Icon(
                   Icons.person,
@@ -167,8 +294,32 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
                 onTap: () => Navigator.push(context,
                     MaterialPageRoute(builder: (_) => LibraryScreen())),
               ),
+              ListTile(
+                leading: Icon(
+                  Icons.security,
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  "Admin Requests",
+                  style: normalText,
+                ),
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => AdminTaskRequest())),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.request_page,
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  "Request a Leave",
+                  style: normalText,
+                ),
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => LeaveRequestScreen())),
+              ),
             ],
-            if (firebase.appUser.level == UserLevel.TEACHER)
+            if (firebase.appUser?.level == UserLevel.TEACHER) ...[
               ListTile(
                 leading: Icon(
                   Icons.person,
@@ -181,17 +332,23 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
                 onTap: () => Navigator.push(
                     context, MaterialPageRoute(builder: (_) => YearsScreen())),
               ),
-            Divider(),
-            ListTile(
-              leading: Icon(
-                Icons.person,
-                color: Theme.of(context).primaryColor,
+              ListTile(
+                leading: Icon(
+                  Icons.receipt_long_rounded,
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  "My Attendance",
+                  style: normalText,
+                ),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TeacherAttendanceScreen(),
+                  ),
+                ),
               ),
-              title: Text(
-                "Coming Soon",
-                style: normalText,
-              ),
-            ),
+            ],
             Divider(),
             ListTile(
               onTap: () async {
@@ -289,7 +446,7 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
                           ))),
             );
           });
-    if (firebase.appUser.level == UserLevel.TEACHER)
+    if (firebase.appUser?.level == UserLevel.TEACHER)
       return ListView.builder(
           padding: EdgeInsets.all(8),
           itemCount: 5,
@@ -307,7 +464,7 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
                           ))),
             );
           });
-    if (firebase.appUser.level == UserLevel.LIBRARIAN)
+    if (firebase.appUser?.level == UserLevel.LIBRARIAN)
       return ListView(
         children: [
           SizedBox(
@@ -322,7 +479,7 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
           )
         ],
       );
-    if (firebase.appUser.isVerified)
+    if (firebase.appUser?.isVerified ?? false)
       return ListView(
         children: [
           SizedBox(
@@ -341,10 +498,20 @@ class _AuthorizedHomeState extends State<AuthorizedHome> {
           CustomTile(
             leading: Icon(Icons.library_books),
             title: "Library",
-            subtitle: "show my library records",
+            subtitle: "library tasks",
             onTap: () => Navigator.push(
                 context, MaterialPageRoute(builder: (_) => LibraryScreen())),
-          )
+          ),
+          Divider(),
+          CustomTile(
+            leading: Icon(Icons.verified_sharp),
+            title: "Admin Requests",
+            subtitle: "show my requests",
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => MyAdminRequests()),
+            ),
+          ),
         ],
       );
     else

@@ -1,12 +1,16 @@
 import 'package:digishala/models/app_user.dart';
 import 'package:digishala/models/attendance.dart';
+import 'package:digishala/models/subject.dart';
+import 'package:digishala/screens/teacherScreens/update_attendance.dart';
+import 'package:digishala/services/firebase.dart';
 import 'package:digishala/widgets/custom_tile.dart';
 import 'package:flutter/material.dart';
 
 class AttendanceRecords extends StatefulWidget {
   final AppUser user;
   final List<Attendance> attendances;
-  const AttendanceRecords({Key key, this.user, this.attendances})
+  final Subject subject;
+  const AttendanceRecords({Key key, this.user, this.attendances, this.subject})
       : super(key: key);
 
   @override
@@ -26,7 +30,7 @@ class _AttendanceRecordsState extends State<AttendanceRecords> {
               height: 10,
             ),
             widget.user.imageUrl == null
-                ? CircularProgressIndicator()
+                ? Center(child: CircularProgressIndicator())
                 : CircleAvatar(
                     radius: 82,
                     backgroundColor: Theme.of(context).primaryColor,
@@ -71,13 +75,22 @@ class _AttendanceRecordsState extends State<AttendanceRecords> {
                       subtitle: widget.attendances[index].isPresent
                           ? "Present"
                           : "Absent",
-                      // onTap: () {
-                      //   Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //           builder: (context) =>
-                      //               VerifyScreen(user: users[index])));
-                      // },
+                      onTap: () async {
+                        if (firebase.appUser.level == UserLevel.TEACHER) {
+                          widget.attendances[index].isPresent =
+                              await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UpdateAttendanceRecord(
+                                user: widget.user,
+                                attendance: widget.attendances[index],
+                                subject: widget.subject,
+                              ),
+                            ),
+                          );
+                          setState(() {});
+                        }
+                      },
                     );
                   }),
             ),

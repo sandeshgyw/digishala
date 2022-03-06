@@ -1,3 +1,4 @@
+import 'package:digishala/screens/adminScreens/add_beacons.dart';
 import 'package:digishala/screens/adminScreens/add_faculty.dart';
 import 'package:digishala/screens/adminScreens/add_final_year.dart';
 import 'package:digishala/screens/adminScreens/add_subject.dart';
@@ -55,6 +56,20 @@ class _SettingsState extends State<Settings> {
                 MaterialPageRoute(
                     builder: (BuildContext context) => AddFaculty())),
           ),
+          CustomTile(
+            title: "Assign beacon to class",
+            subtitle: "To assign beacon to class",
+            leading: Icon(
+              Icons.subject,
+            ),
+            trailing: Icon(
+              Icons.add_box,
+            ),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => AddBeacons())),
+          ),
           Divider(),
           CustomTile(
             title: "Set Current 5th year",
@@ -84,6 +99,7 @@ class _SettingsState extends State<Settings> {
                 MaterialPageRoute(
                     builder: (BuildContext context) => AssignSubject())),
           ),
+          Divider(),
         ],
       ),
     );

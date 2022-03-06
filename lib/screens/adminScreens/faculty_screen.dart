@@ -41,7 +41,7 @@ class _FacultyScreenState extends State<FacultyScreen> {
         title: Text("Faculties"),
       ),
       body: faculties.length == 0
-          ? CircularProgressIndicator()
+          ? Center(child: CircularProgressIndicator())
           : ListView.builder(
               padding: EdgeInsets.all(8),
               itemCount: faculties.length,

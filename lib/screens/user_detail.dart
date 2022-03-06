@@ -27,7 +27,7 @@ class _UserDerailState extends State<UserDetail> {
           Column(
             children: [
               firebase.appUser.imageUrl == null
-                  ? CircularProgressIndicator()
+                  ? Center(child: CircularProgressIndicator())
                   : CircleAvatar(
                       radius: 82,
                       backgroundColor: Theme.of(context).primaryColor,

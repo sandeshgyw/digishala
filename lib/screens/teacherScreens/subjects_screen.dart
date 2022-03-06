@@ -33,9 +33,9 @@ class _SubjectScreenState extends State<SubjectScreen> {
 
   initAsync() async {
     if (firebase.appUser.level == UserLevel.TEACHER) {
-      var val = await firebase.getSubjects(widget.year, widget.faculty);
+      var valSub = await firebase.getSubjects(widget.year, widget.faculty);
       setState(() {
-        subs = val;
+        subs = valSub;
       });
     }
     if (firebase.appUser.level == UserLevel.STUDENT) {

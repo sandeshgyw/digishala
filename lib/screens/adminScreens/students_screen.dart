@@ -68,216 +68,246 @@ class _StudentsScreenState extends State<StudentsScreen> {
           : null,
       body: users.length == 0
           ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              padding: EdgeInsets.all(8),
-              itemCount: users.length,
-              itemBuilder: (BuildContext context, int index) {
-                if (widget.fromAdmin)
-                  return CustomTile(
-                    title: users[index].name,
-                    subtitle: users[index].phoneNumber.toString(),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  VerifyScreen(user: users[index])));
-                    },
-                  );
-                if (widget.isViewAttendance == false)
-                  return Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    color: Color(0xff868784),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            users[index].imageUrl == null
-                                ? CircularProgressIndicator()
-                                : Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: CircleAvatar(
-                                      radius: 50,
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor,
-                                      child: users[index].imageUrl == null
-                                          ? Text("Loading")
-                                          : CircleAvatar(
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                      padding: EdgeInsets.all(8),
+                      itemCount: users.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        if (widget.fromAdmin)
+                          return CustomTile(
+                            title: users[index].name,
+                            subtitle: users[index].phoneNumber.toString(),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          VerifyScreen(user: users[index])));
+                            },
+                          );
+                        if (widget.isViewAttendance == false)
+                          return Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            color: Color(0xff868784),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    users[index].imageUrl == null
+                                        ? Center(child: CircularProgressIndicator())
+                                        : Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: CircleAvatar(
                                               radius: 50,
                                               backgroundColor: Theme.of(context)
                                                   .primaryColor,
-                                              backgroundImage: NetworkImage(
-                                                    users[index].imageUrl,
-                                                  ) ??
-                                                  AssetImage(
-                                                      "assets/logoo.png"),
+                                              child:
+                                                  users[index].imageUrl == null
+                                                      ? Text("Loading")
+                                                      : CircleAvatar(
+                                                          radius: 50,
+                                                          backgroundColor:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                          backgroundImage:
+                                                              NetworkImage(
+                                                                    users[index]
+                                                                        .imageUrl,
+                                                                  ) ??
+                                                                  AssetImage(
+                                                                      "assets/logoo.png"),
+                                                        ),
                                             ),
-                                    ),
-                                  ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Name: " + users[index].name,
-                                  style: tileBoldText,
+                                          ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Name: " + users[index].name,
+                                          style: tileBoldText,
+                                        ),
+                                        Text(
+                                          "Roll: " +
+                                              users[index].roll.toString(),
+                                          style: tileBoldText,
+                                        ),
+                                        Text(
+                                          DateTime.now()
+                                              .toString()
+                                              .split(" ")
+                                              .first,
+                                          style: tileBoldText,
+                                        ),
+                                      ],
+                                    )
+                                  ],
                                 ),
-                                Text(
-                                  "Roll: " + users[index].roll.toString(),
-                                  style: tileBoldText,
-                                ),
-                                Text(
-                                  DateTime.now().toString().split(" ").first,
-                                  style: tileBoldText,
+                                ListTileTheme(
+                                  // shape: RoundedRectangleBorder(
+                                  //   borderRadius: BorderRadius.circular(10),
+                                  // ),
+                                  iconColor: Colors.white,
+                                  tileColor: users[index].isPresent
+                                      ? Colors.green
+                                      : Colors.redAccent,
+                                  child: CheckboxListTile(
+                                      value: users[index].isPresent,
+                                      onChanged: (bool newVal) {
+                                        setState(() {
+                                          users[index].isPresent = newVal;
+                                        });
+                                      },
+                                      title: Text(
+                                        users[index].isPresent
+                                            ? "Present"
+                                            : "Absent",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )),
                                 ),
                               ],
-                            )
-                          ],
-                        ),
-                        ListTileTheme(
-                          // shape: RoundedRectangleBorder(
-                          //   borderRadius: BorderRadius.circular(10),
-                          // ),
-                          iconColor: Colors.white,
-                          tileColor: users[index].isPresent
-                              ? Colors.green
-                              : Colors.redAccent,
-                          child: CheckboxListTile(
-                              value: users[index].isPresent,
-                              onChanged: (bool newVal) {
-                                setState(() {
-                                  users[index].isPresent = newVal;
-                                });
-                              },
-                              title: Text(
-                                users[index].isPresent ? "Present" : "Absent",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )),
-                        ),
-                      ],
-                    ),
-                  );
-                return FutureBuilder(
-                    future:
-                        getAttendanceDataAsync(users[index], widget.subject),
-                    initialData: "Loading text..",
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> text) {
-                      return GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => AttendanceRecords(
-                                      user: users[index],
-                                      attendances:
-                                          users[index].attendanceRecords,
-                                    ))),
-                        child: Card(
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          color: Color(0xff868784),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  users[index].imageUrl == null
-                                      ? CircularProgressIndicator()
-                                      : Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: CircleAvatar(
-                                            radius: 50,
-                                            backgroundColor:
-                                                Theme.of(context).primaryColor,
-                                            child: users[index].imageUrl == null
-                                                ? Text("Loading")
-                                                : CircleAvatar(
+                            ),
+                          );
+                        return FutureBuilder(
+                            future: getAttendanceDataAsync(
+                                users[index], widget.subject),
+                            initialData: "Loading text..",
+                            builder: (BuildContext context,
+                                AsyncSnapshot<String> text) {
+                              return GestureDetector(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => AttendanceRecords(
+                                              user: users[index],
+                                              attendances: users[index]
+                                                  .attendanceRecords,
+                                              subject: widget.subject,
+                                            ))),
+                                child: Card(
+                                  elevation: 5,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  color: Color(0xff868784),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          users[index].imageUrl == null
+                                              ? Center(child: CircularProgressIndicator())
+                                              : Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: CircleAvatar(
                                                     radius: 50,
                                                     backgroundColor:
                                                         Theme.of(context)
                                                             .primaryColor,
-                                                    backgroundImage:
-                                                        NetworkImage(
-                                                              users[index]
-                                                                  .imageUrl,
-                                                            ) ??
-                                                            AssetImage(
-                                                                "assets/logoo.png"),
+                                                    child:
+                                                        users[index].imageUrl ==
+                                                                null
+                                                            ? Text("Loading")
+                                                            : CircleAvatar(
+                                                                radius: 50,
+                                                                backgroundColor:
+                                                                    Theme.of(
+                                                                            context)
+                                                                        .primaryColor,
+                                                                backgroundImage:
+                                                                    NetworkImage(
+                                                                          users[index]
+                                                                              .imageUrl,
+                                                                        ) ??
+                                                                        AssetImage(
+                                                                            "assets/logoo.png"),
+                                                              ),
                                                   ),
-                                          ),
-                                        ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Name: " + users[index].name,
-                                        style: tileBoldText,
+                                                ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Name: " + users[index].name,
+                                                style: tileBoldText,
+                                              ),
+                                              Text(
+                                                "Roll: " +
+                                                    users[index]
+                                                        .roll
+                                                        .toString(),
+                                                style: tileBoldText,
+                                              ),
+                                              Text(
+                                                DateTime.now()
+                                                    .toString()
+                                                    .split(" ")
+                                                    .first,
+                                                style: tileBoldText,
+                                              ),
+                                            ],
+                                          )
+                                        ],
                                       ),
-                                      Text(
-                                        "Roll: " + users[index].roll.toString(),
-                                        style: tileBoldText,
-                                      ),
-                                      Text(
-                                        DateTime.now()
-                                            .toString()
-                                            .split(" ")
-                                            .first,
-                                        style: tileBoldText,
+                                      ListTileTheme(
+                                        // shape: RoundedRectangleBorder(
+                                        //   borderRadius: BorderRadius.circular(10),
+                                        // ),
+                                        iconColor: Colors.white,
+                                        tileColor: Color(0xff868784),
+                                        child: ListTile(
+                                            title: Text(
+                                              text.data,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                // color: users[index].isPresent
+                                                //     ? Colors.yellow
+                                                //     : Colors.redAccent,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              "Present",
+                                              style: tileText,
+                                            ),
+                                            trailing: Icon(Icons.arrow_forward)
+                                            // subtitle: Text(
+                                            //   users[index].roll.toString(),
+                                            //   style: tileText,
+                                            // ),
+                                            // onTap: () {
+                                            //   Navigator.push(
+                                            //       context,
+                                            //       MaterialPageRoute(
+                                            //           builder: (context) =>
+                                            //               VerifyScreen(user: users[index])));
+                                            // },
+                                            ),
                                       ),
                                     ],
-                                  )
-                                ],
-                              ),
-                              ListTileTheme(
-                                // shape: RoundedRectangleBorder(
-                                //   borderRadius: BorderRadius.circular(10),
-                                // ),
-                                iconColor: Colors.white,
-                                tileColor: Color(0xff868784),
-                                child: ListTile(
-                                    title: Text(
-                                      text.data,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        // color: users[index].isPresent
-                                        //     ? Colors.yellow
-                                        //     : Colors.redAccent,
-                                      ),
-                                    ),
-                                    subtitle: Text(
-                                      "Present",
-                                      style: tileText,
-                                    ),
-                                    trailing: Icon(Icons.arrow_forward)
-                                    // subtitle: Text(
-                                    //   users[index].roll.toString(),
-                                    //   style: tileText,
-                                    // ),
-                                    // onTap: () {
-                                    //   Navigator.push(
-                                    //       context,
-                                    //       MaterialPageRoute(
-                                    //           builder: (context) =>
-                                    //               VerifyScreen(user: users[index])));
-                                    // },
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    });
-              }),
+                                  ),
+                                ),
+                              );
+                            });
+                      }),
+                ),
+                SizedBox(
+                  height: 80,
+                )
+              ],
+            ),
     );
   }
 

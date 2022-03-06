@@ -1,6 +1,8 @@
 import 'package:digishala/constants/text_styles.dart';
+import 'package:digishala/screens/adminScreens/admin_requests_all_screen.dart';
 import 'package:digishala/screens/adminScreens/faculty_screen.dart';
 import 'package:digishala/screens/adminScreens/settings.dart';
+import 'package:digishala/screens/adminScreens/teachers_screen.dart';
 import 'package:digishala/screens/user_detail.dart';
 import 'package:digishala/services/firebase.dart';
 import 'package:digishala/services/navigation.dart';
@@ -85,7 +87,7 @@ class _UnAuthorizedHomeState extends State<UnAuthorizedHome> {
                 ),
               ),
             ),
-            if (isAdmin)
+            if (isAdmin) ...[
               ListTile(
                 onTap: () => Navigator.push(
                     context,
@@ -101,17 +103,39 @@ class _UnAuthorizedHomeState extends State<UnAuthorizedHome> {
                   style: normalText,
                 ),
               ),
-            Divider(),
-            ListTile(
-              leading: Icon(
-                Icons.person,
-                color: Theme.of(context).primaryColor,
+              Divider(),
+              ListTile(
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TeachersListScreen(),
+                    )),
+                leading: Icon(
+                  Icons.school,
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  "View Teachers Attendance",
+                  style: normalText,
+                ),
               ),
-              title: Text(
-                "Coming Soon",
-                style: normalText,
+              Divider(),
+              ListTile(
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AllAdminRequests(),
+                    )),
+                leading: Icon(
+                  Icons.request_page,
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  "View Admin Requests",
+                  style: normalText,
+                ),
               ),
-            ),
+            ],
             Divider(),
             ListTile(
               onTap: () async {

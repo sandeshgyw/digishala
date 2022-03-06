@@ -8,6 +8,8 @@ class AppUser {
   bool isPresent = false;
   List<Attendance> attendanceRecords = [];
   int activeLibraryCards;
+  bool isOnaLeave;
+  String docUpdate;
 
   toMap() {
     return {
@@ -23,7 +25,9 @@ class AppUser {
       "level": level == UserLevel.STUDENT ? "STUDENT" : "TEACHER",
       "imageUrl": imageUrl,
       "currentYear": currentYear,
-      "activeLibraryCards": activeLibraryCards
+      "activeLibraryCards": activeLibraryCards,
+      "isOnaLeave": isOnaLeave ?? false,
+      "docUpdate": docUpdate,
     };
   }
 
@@ -45,7 +49,8 @@ class AppUser {
               : UserLevel.LIBRARIAN
       ..imageUrl = json["imageUrl"]
       ..currentYear = json["currentYear"]
-      ..activeLibraryCards = json["activeLibraryCards"];
+      ..activeLibraryCards = json["activeLibraryCards"]
+      ..isOnaLeave = json["isOnaLeave"] ?? false;
   }
 }
 
